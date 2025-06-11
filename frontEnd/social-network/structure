@@ -1,0 +1,177 @@
+CopyPublish🚀 Optimized Social Network - Complete Structure
+📦 Project Initialization
+bash# Create project with Vite
+npm create vite@latest social-network -- --template react
+cd social-network
+
+# Core Dependencies
+npm install react-router-dom
+npm install @tanstack/react-query
+npm install zustand
+npm install react-hook-form
+npm install zod
+
+# UI & Styling
+npm install tailwindcss postcss autoprefixer
+npm install lucide-react
+npm install @headlessui/react
+npm install framer-motion
+npm install react-hot-toast
+
+# Utilities
+npm install date-fns
+npm install clsx
+npm install axios
+
+# Development
+npm install -D @tailwindcss/forms
+npm install -D @tailwindcss/typography
+npm install -D eslint-plugin-react-hooks
+📁 Optimized Project Structure
+social-network/
+├── public/
+│   ├── icons/
+│   │   ├── favicon.ico
+│   │   ├── apple-touch-icon.png
+│   │   └── android-chrome-192x192.png
+│   ├── images/
+│   │   ├── logo.svg
+│   │   ├── placeholder-avatar.png
+│   │   └── placeholder-cover.jpg
+│   └── manifest.json
+├── src/
+│   ├── components/
+│   │   ├── ui/                    # Reusable UI Components
+│   │   │   ├── Button.jsx
+│   │   │   ├── Input.jsx
+│   │   │   ├── Avatar.jsx
+│   │   │   ├── Card.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── Dropdown.jsx
+│   │   │   ├── Skeleton.jsx
+│   │   │   ├── Badge.jsx
+│   │   │   └── index.js
+│   │   ├── layout/                # Layout Components
+│   │   │   ├── AppLayout.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── MobileNav.jsx
+│   │   │   └── index.js
+│   │   ├── features/              # Feature Components
+│   │   │   ├── auth/
+│   │   │   │   ├── LoginForm.jsx
+│   │   │   │   ├── RegisterForm.jsx
+│   │   │   │   ├── AuthLayout.jsx
+│   │   │   │   └── index.js
+│   │   │   ├── src/components/features/settings #https://claude.ai/chat/a0d55e92-84cc-427e-8a4b-ca0d26b31765 (các ui)
+│   │   │   |   ├── index.js                    # Export tất cả components
+│   │   │   |   ├── SettingsLayout.jsx          # Layout chính
+│   │   │   |   ├── SettingsSidebar.jsx         # Sidebar navigation
+│   │   │   |   ├── ToggleSwitch.jsx            # Reusable toggle component
+│   │   │   |   ├── ProfileSettings.jsx         # Cài đặt hồ sơ  https://claude.ai/chat/0e7b992c-d328-4f9f-a243-0247cacc89b2(logic frontend)    https://claude.ai/chat/b7c7d266-7c55-496a-acba-f64a7df5bec6 (backend)
+│   │   │   |   ├── NotificationSettings.jsx    # Cài đặt thông báo
+│   │   │   |   ├── PrivacySettings.jsx         # Cài đặt riêng tư
+│   │   │   |   ├── AppearanceSettings.jsx      # Cài đặt giao diện
+│   │   │   |   ├── LanguageSettings.jsx        # Cài đặt ngôn ngữ
+│   │   │   |   ├── DataSettings.jsx            # Cài đặt dữ liệu
+│   │   │   |   └── AccountSettings.jsx         # Cài đặt tài khoản           # Post-related Components
+│   │   │   ├── posts/
+│   │   │   │   ├── PostCard.jsx
+│   │   │   │   ├── PostList.jsx
+│   │   │   │   ├── CreatePost.jsx
+│   │   │   │   ├── PostModal.jsx
+│   │   │   │   ├── CommentSection.jsx
+│   │   │   │   └── index.js
+│   │   │   ├── profile/
+│   │   │   │   ├── ProfileCard.jsx
+│   │   │   │   ├── ProfileHeader.jsx
+│   │   │   │   ├── EditProfile.jsx
+│   │   │   │   ├── UserStats.jsx
+│   │   │   │   └── index.js
+│   │   │   ├── messages/
+│   │   │   │   ├── ChatList.jsx
+│   │   │   │   ├── ChatWindow.jsx
+│   │   │   │   ├── MessageBubble.jsx
+│   │   │   │   └── index.js
+│   │   │   ├── notifications/
+│   │   │   │   ├── NotificationBell.jsx
+│   │   │   │   ├── NotificationList.jsx
+│   │   │   │   ├── NotificationItem.jsx
+│   │   │   │   └── index.js
+│   │   │   └── search/
+│   │   │       ├── SearchBar.jsx
+│   │   │       ├── SearchResults.jsx
+│   │   │       ├── SearchFilters.jsx
+│   │   │       └── index.js
+│   │   ├── common/                # Common Components
+│   │   │   ├── ErrorBoundary.jsx
+│   │   │   ├── LoadingSpinner.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── ErrorFallback.jsx
+│   │   │   └── index.js
+│   │   └── index.js
+│   ├── pages/                     # Page Components
+│   │   ├── HomePage.jsx
+│   │   ├── ProfilePage.jsx
+│   │   ├── MessagesPage.jsx
+│   │   ├── NotificationsPage.jsx
+│   │   ├── SearchPage.jsx
+│   │   ├── SettingsPage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── NotFoundPage.jsx
+│   │   └── index.js
+│   ├── hooks/                     # Custom Hooks
+│   │   ├── useAuth.js
+│   │   ├── usePosts.js
+│   │   ├── useProfile.js
+│   │   ├── useMessages.js
+│   │   ├── useNotifications.js
+│   │   ├── useSearch.js
+│   │   ├── useLocalStorage.js
+│   │   ├── useDebounce.js
+│   │   ├── useInfiniteScroll.js
+│   │   └── index.js
+│   ├── store/                     # Zustand Store
+│   │   ├── authStore.js
+│   │   ├── postsStore.js
+│   │   ├── messagesStore.js
+│   │   ├── notificationsStore.js
+│   │   ├── uiStore.js
+│   │   └── index.js
+│   ├── services/                  # API Services
+│   │   ├── api.js                 # Axios instance
+│   │   ├── auth.js
+│   │   ├── posts.js
+│   │   ├── users.js
+│   │   ├── messages.js
+│   │   ├── notifications.js
+│   │   └── index.js
+│   ├── utils/                     # Utility Functions
+│   │   ├── constants.js
+│   │   ├── helpers.js
+│   │   ├── formatters.js
+│   │   ├── validators.js
+│   │   ├── storage.js
+│   │   └── index.js
+│   ├── data/                      # Mock Data & Types
+│   │   ├── mockUsers.js
+│   │   ├── mockPosts.js
+│   │   ├── mockMessages.js
+│   │   └── index.js
+│   ├── styles/                    # Styles
+│   │   ├── globals.css
+│   │   ├── components.css
+│   │   └── animations.css
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── .env.local
+├── .env.example
+├── .gitignore
+├── .eslintrc.json
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── vite.config.js
+└── README.md

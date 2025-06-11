@@ -1,0 +1,8 @@
+lucide-react
+react-router-dom
+tailwind@3.4.1
+npm
+axios
+zustand
+react-hot-toast
+npm i @cloudinary/url-gen @cloudinary/react

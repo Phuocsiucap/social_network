@@ -1,0 +1,33 @@
+src/main/java/com/example/chatapp
+│
+├── config/                  → Cấu hình WebSocket, CORS, bảo mật
+│   └── WebSocketConfig.java
+│   └── WebSocketHandler.java
+│   └── JwtFilter.java
+│
+├── controller/              → REST API (đăng ký, đăng nhập, user, chat)
+│   └── AuthController.java
+│   └── ChatController.java
+│
+├── dto/                     → Dữ liệu trao đổi (DTOs)
+│   └── LoginRequest.java, MessageDTO.java, ...
+│
+├── model/                   → Entity JPA
+│   └── User.java
+│   └── Chat.java
+│   └── Message.java
+│
+├── repository/              → Interface tương tác CSDL
+│   └── UserRepository.java
+│   └── ChatRepository.java
+│
+├── service/                 → Xử lý nghiệp vụ
+│   └── AuthService.java
+│   └── ChatService.java
+│   └── WebSocketService.java
+│
+├── util/                    → Tiện ích JWT, mã hóa mật khẩu,...
+│   └── JwtUtil.java
+│   └── PasswordUtil.java
+│
+└── ChatAppApplication.java  → Class chính

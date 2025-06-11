@@ -1,0 +1,10 @@
+export { default as SettingsLayout } from './SettingsLayout';
+export { default as SettingsSidebar } from './SettingsSidebar';
+export { default as ProfileSettings } from './ProfileSettings';
+export { default as NotificationSettings } from './NotificationSettings';
+export { default as PrivacySettings } from './PrivacySettings';
+export { default as AppearanceSettings } from './AppearanceSettings';
+export { default as LanguageSettings } from './LanguageSettings';
+export { default as DataSettings } from './DataSettings';
+export { default as AccountSettings } from './AccountSettings';
+export { default as ToggleSwitch } from './ToggleSwitch';
