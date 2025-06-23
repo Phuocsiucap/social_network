@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Mail, LogOut, ChevronRight } from 'lucide-react';
-// import { useAuth } from './../../../hooks';
+import { useAuth } from './../../../hooks';
 
 const AccountSettings = () => {
     // const { logout } = useAuth();

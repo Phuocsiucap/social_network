@@ -2,9 +2,7 @@ package com.social_network.social_network.service;
 
 
 import com.social_network.social_network.dto.request.MessageRequest;
-import com.social_network.social_network.dto.response.ChatInfoDTO;
 import com.social_network.social_network.dto.response.MessageDTO;
-import com.social_network.social_network.dto.response.MessageResponse;
 import com.social_network.social_network.entity.Chat;
 import com.social_network.social_network.entity.Messages;
 import com.social_network.social_network.entity.User;
@@ -18,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +40,7 @@ public class MessageService {
     private final ChatMapper chatMapper;
 
 
-    public MessageResponse sendMessage(MessageRequest messageSend, String senderId) {
+    public MessageDTO saveMessage(MessageRequest messageSend, String senderId) {
         Optional<User> useropt = userRepository.findById(senderId);
         Optional<Chat> chatOpt = chatRepository.findById(messageSend.getChatId());
         if (useropt.isEmpty()) {
@@ -62,21 +60,45 @@ public class MessageService {
         Messages savedMessage = messageRepository.save(message);
         chat.setLatestMessage(savedMessage);
         chatRepository.save(chat);
-        MessageResponse messageResponse = messageMapper.toMessageResponse(savedMessage);
+        MessageDTO messageResponse = messageMapper.toMessageDTO(savedMessage);
         return messageResponse;
     }
 
-    public List<MessageDTO> getMessagesOfChat(String chatId) {
-        Chat chat = chatRepository.findById(chatId).get();
+    public Page<MessageDTO> getMessagesOfChat(String chatId, int page, int limit) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("❌ Chat not found with id: " + chatId));
 
-        List<Messages> messages = messageRepository.findAllByChat_Id(chat.getId(), Limit.of(13));
-        return messages.stream().map(messageMapper::toMessageDTO).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("createdAt").descending());
+        Page<Messages> messagePage = messageRepository.findAllByChat_Id(chat.getId(), pageable);
+
+        // Map entity → DTO, rồi wrap lại bằng PageImpl để giữ phân trang
+        List<MessageDTO> dtos = messagePage.getContent().stream()
+                .map(messageMapper::toMessageDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, pageable, messagePage.getTotalElements());
     }
-    public void updateDeliveryStatus(MessageResponse message) {
+
+
+
+    public void updateDeliveryStatus(MessageDTO message) {
         Messages messages = messageRepository.getById(message.getId());
         messages.setDelivered(message.getDelivered());
         messageRepository.save(messages);
     }
+
+    public void markMessagesAsRead(String chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+        List<Messages> unreadMessages = messageRepository.findAllByChat_IdAndIsReadFalse(chatId);
+        for (Messages message : unreadMessages) {
+            message.setIsRead(true);
+            message.setDelivered(true); // Nếu muốn cập nhật luôn delivered
+        }
+        messageRepository.saveAll(unreadMessages);
+    }
+
 
 
 }

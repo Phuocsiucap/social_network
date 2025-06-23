@@ -1,49 +1,74 @@
-// ===== services/messages.js =====
-import api from './api'
+import api from './api';
 
-export const messagesAPI = {
-  // Get chats
+const messagesAPI = {
+  // Lấy danh sách cuộc trò chuyện
   getChats: async ({ page = 1, limit = 20 } = {}) => {
-    const response = await api.get(`/chats?page=${page}&limit=${limit}`)
-    return response.data
+    try {
+      const response = await api.get('/api/chats');
+      console.log("getChats response:", response.data);
+      
+      // Đảm bảo luôn return array
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data;
+      } else if (data && Array.isArray(data.data)) {
+        return data.data;
+      } else if (data && Array.isArray(data.result)) {
+        return data.result;
+      } else if (data && Array.isArray(data.conversations)) {
+        return data.conversations;
+      } else {
+        console.warn('API response is not an array:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error in getChats:', error);
+      throw error;
+    }
   },
 
-  // Get or create chat
+  // Tạo hoặc lấy một cuộc trò chuyện
   getOrCreateChat: async (userId) => {
-    const response = await api.post('/chats', { userId })
-    return response.data
+    const response = await api.post('/api/chats', { userId });
+    return response.data;
   },
 
-  // Get messages
+  // Lấy danh sách tin nhắn
   getMessages: async (chatId, { page = 1, limit = 50 } = {}) => {
-    const response = await api.get(`/chats/${chatId}/messages?page=${page}&limit=${limit}`)
-    return response.data
+    const response = await api.get(`/api/chats/${chatId}/messages?page=${page}&limit=${limit}`);
+    console.log(response);
+    return {
+      messages: response.data.result.data || [],
+      hasMore: response.data.result.hasMore || false,
+      total: response.data.result.total || 0
+    };
   },
 
-  // Send message
+  // Gửi tin nhắn
   sendMessage: async (chatId, messageData) => {
-    const response = await api.post(`/chats/${chatId}/messages`, messageData)
-    return response.data
+    const response = await api.post(`/api/chats/${chatId}/messages`, messageData);
+    return response.data;
   },
 
-  // Mark messages as read
+  // Đánh dấu đã đọc
   markAsRead: async (chatId) => {
-    const response = await api.put(`/chats/${chatId}/read`)
-    return response.data
+    const response = await api.put(`/api/chats/${chatId}/read`);
+    return response.data;
   },
 
-  // Delete message
+  // Xoá tin nhắn
   deleteMessage: async (messageId) => {
-    const response = await api.delete(`/messages/${messageId}`)
-    return response.data
+    const response = await api.delete(`/api/messages/${messageId}`);
+    return response.data;
   },
 
-  // Search messages
+  // Tìm kiếm tin nhắn
   searchMessages: async (query, chatId = null) => {
-    const params = new URLSearchParams({ q: query })
-    if (chatId) params.append('chatId', chatId)
-    
-    const response = await api.get(`/messages/search?${params}`)
-    return response.data
+    const params = new URLSearchParams({ q: query });
+    if (chatId) params.append('chatId', chatId);
+    const response = await api.get(`/api/messages/search?${params.toString()}`);
+    return response.data;
   }
-}
+};
+
+export default messagesAPI;

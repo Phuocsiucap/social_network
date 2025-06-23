@@ -51,7 +51,7 @@ social-network/
 │   │   │   ├── Skeleton.jsx
 │   │   │   ├── Badge.jsx
 │   │   │   └── index.js
-│   │   ├── layout/                # Layout Components
+│   │   ├── layout/                # Layout Components   https://claude.ai/chat/f51691e0-6a12-4c73-a440-c7494e2036f0
 │   │   │   ├── AppLayout.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Sidebar.jsx
@@ -147,6 +147,12 @@ social-network/
 │   │   ├── messages.js
 │   │   ├── notifications.js
 │   │   └── index.js
+            websocket/  #https://claude.ai/chat/11968dbf-fb49-4482-9e3e-dee80c044047
+                ├── index.js
+                ├── WebSocketService.js
+                ├── WebSocketConnection.js
+                ├── ReconnectManager.js
+                └── MessageHandler.js
 │   ├── utils/                     # Utility Functions
 │   │   ├── constants.js
 │   │   ├── helpers.js
@@ -175,3 +181,6 @@ social-network/
 ├── tailwind.config.js
 ├── vite.config.js
 └── README.md
+
+
+https://claude.ai/chat/869e785c-1290-4ae9-a421-7374d0c0942f

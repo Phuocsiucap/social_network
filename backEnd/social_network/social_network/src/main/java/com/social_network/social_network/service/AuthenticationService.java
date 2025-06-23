@@ -2,14 +2,11 @@ package com.social_network.social_network.service;
 
 
 import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.social_network.social_network.dto.request.LoginRequest;
 import com.social_network.social_network.dto.request.UserCreationRequest;
 import com.social_network.social_network.dto.request.UserUpdateRequest;
 import com.social_network.social_network.dto.response.AuthenticationResponse;
 import com.social_network.social_network.dto.response.UserInfoDTO;
-import com.social_network.social_network.dto.response.UserResponse;
 import com.social_network.social_network.entity.User;
 import com.social_network.social_network.exception.AppException;
 import com.social_network.social_network.exception.ErrorCode;
@@ -21,18 +18,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.UUID;
 
 @Slf4j
 @Service

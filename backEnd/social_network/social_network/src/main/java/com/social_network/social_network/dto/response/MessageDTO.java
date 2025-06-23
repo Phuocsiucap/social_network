@@ -14,7 +14,9 @@ import java.util.List;
 @Builder
 public class MessageDTO {
     private String id;
-    private UserInfoDTO sender; // với group chat
+    private MessageUser sender; // với group chat
     private LocalDateTime createdAt;
     private String content;
+    private Boolean delivered;
+    private Boolean isRead;
 }

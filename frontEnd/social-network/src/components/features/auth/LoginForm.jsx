@@ -42,7 +42,6 @@ const LoginForm = () => {
     
     return newErrors;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
@@ -54,13 +53,18 @@ const LoginForm = () => {
     
     setIsLoading(true);
    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const result = await login(formData);
+      if (result.success) {
+        navigate('/'); // Chỉ chuyển hướng khi đăng nhập thành công
+      }
+    } catch (error) {
+      setErrors({
+        email: error.message || 'Đăng nhập không thành công'
+      });
+    } finally {
       setIsLoading(false);
-      // onLogin(formData);
-      login(formData);
-      navigate('/'); // Redirect to home page after login
-    }, 1500);
+    }
   };
   const SwitchToRegister = () => {
     navigate('/register'); // Redirect to register page

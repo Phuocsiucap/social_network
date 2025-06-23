@@ -2,43 +2,66 @@ package com.social_network.social_network.controller;
 
 
 import com.social_network.social_network.dto.ChatDTO;
-import com.social_network.social_network.dto.request.MessageRequest;
 import com.social_network.social_network.dto.response.APIResponse;
-import com.social_network.social_network.dto.response.ChatInfoDTO;
 import com.social_network.social_network.dto.response.MessageDTO;
-import com.social_network.social_network.dto.response.MessageResponse;
-import com.social_network.social_network.entity.Chat;
 import com.social_network.social_network.service.ChatService;
 import com.social_network.social_network.service.MessageService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/chats")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatController {
     private ChatService chatService;
     private MessageService messageService;
 
-    @GetMapping("/{userId}")
-    public APIResponse<List<ChatInfoDTO>> getChats(@PathVariable String userId) {
-    APIResponse<List<ChatInfoDTO>> response = new APIResponse<>();
-        List<ChatInfoDTO> chats = chatService.getChatsForUser(userId);
+    @GetMapping
+    public APIResponse<List<ChatDTO>> getChats() {
+    APIResponse<List<ChatDTO>> response = new APIResponse<>();
+        List<ChatDTO> chats = chatService.getChatsForUser();
         response.setResult(chats);
         return response;
     }
 
-    @GetMapping("/getchat/{chatId}")
-    public APIResponse<List<MessageDTO>> getChat(@PathVariable String chatId) {
-        APIResponse<List<MessageDTO>> response = new APIResponse<>();
-        List<MessageDTO> messages = messageService.getMessagesOfChat(chatId);
-        response.setResult(messages);
+    @GetMapping("/{chatId}/messages")
+    public APIResponse<Map<String, Object>> getChat(
+            @PathVariable String chatId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "50") int limit
+    ) {
+        System.out.println("📌 Received chatId = [" + chatId + "], page = " + page + ", limit = " + limit);
+
+        Page<MessageDTO> messagePage = messageService.getMessagesOfChat(chatId, page, limit);
+
+        Map<String, Object> rp = new HashMap<>();
+        rp.put("data", messagePage.getContent());
+        rp.put("hasMore", messagePage.hasNext());
+
+        APIResponse<Map<String, Object>> response = new APIResponse<>();
+        response.setResult(rp);
         return response;
+    }
+
+
+
+    @PostMapping("/getOrCreatChat")
+    public APIResponse<ChatDTO> getOrCreateChat(@RequestBody Map<String, String> payload) {
+        String friendId = payload.get("userId"); // phải đúng với key bên frontend gửi
+        ChatDTO chat = chatService.getOrCreateChat(friendId);
+        APIResponse<ChatDTO> response = new APIResponse<>();
+        response.setResult(chat);
+        return response;
+
     }
 
     @PostMapping("/create")
@@ -47,6 +70,16 @@ public class ChatController {
                 .result(chatService.createChat(userIds))
                 .build();
     }
+
+    @PutMapping("/{chatId}/read")
+    public APIResponse<String> markMessagesAsRead(@PathVariable String chatId) {
+        messageService.markMessagesAsRead(chatId);
+        return APIResponse.<String>builder()
+                .result("Marked as read")
+                .build();
+    }
+
+
 //    @PostMapping("/sendmessage")
 //    public APIResponse<MessageResponse> sendMessage(@RequestBody MessageRequest messageRequest){
 //        MessageResponse messageResponse = chatService.sendMessage(messageRequest);

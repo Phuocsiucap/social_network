@@ -1,10 +1,8 @@
 package com.social_network.social_network.mapper;
 
 import com.social_network.social_network.dto.ChatDTO;
-import com.social_network.social_network.dto.request.MessageRequest;
-import com.social_network.social_network.dto.response.ChatInfoDTO;
 import com.social_network.social_network.dto.response.MessageDTO;
-import com.social_network.social_network.dto.response.MessageResponse;
+import com.social_network.social_network.dto.response.MessageUser;
 import com.social_network.social_network.dto.response.UserInfoDTO;
 import com.social_network.social_network.entity.Chat;
 import com.social_network.social_network.entity.Messages;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-11T16:00:23+0700",
+    date = "2025-06-13T19:02:26+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
@@ -37,20 +35,7 @@ public class ChatMapperImpl implements ChatMapper {
         chat.setId( chatDTO.getId() );
         chat.setChatName( chatDTO.getChatName() );
         chat.setUsers( userInfoDTOListToUserList( chatDTO.getUsers() ) );
-
-        return chat;
-    }
-
-    @Override
-    public Chat toChat(ChatInfoDTO chatInfoDTO) {
-        if ( chatInfoDTO == null ) {
-            return null;
-        }
-
-        Chat chat = new Chat();
-
-        chat.setId( chatInfoDTO.getId() );
-        chat.setLatestMessage( messageDTOToMessages( chatInfoDTO.getLatestMessage() ) );
+        chat.setLatestMessage( messageDTOToMessages( chatDTO.getLatestMessage() ) );
 
         return chat;
     }
@@ -66,37 +51,9 @@ public class ChatMapperImpl implements ChatMapper {
         chatDTO.setId( chat.getId() );
         chatDTO.setChatName( chat.getChatName() );
         chatDTO.setUsers( userListToUserInfoDTOList( chat.getUsers() ) );
+        chatDTO.setLatestMessage( messageMapper.toMessageDTO( chat.getLatestMessage() ) );
 
         return chatDTO;
-    }
-
-    @Override
-    public ChatInfoDTO toChatInfoDTO(Chat chat) {
-        if ( chat == null ) {
-            return null;
-        }
-
-        ChatInfoDTO.ChatInfoDTOBuilder chatInfoDTO = ChatInfoDTO.builder();
-
-        chatInfoDTO.id( chat.getId() );
-        chatInfoDTO.latestMessage( messageMapper.toMessageDTO( chat.getLatestMessage() ) );
-
-        return chatInfoDTO.build();
-    }
-
-    @Override
-    public MessageResponse toMessageResponse(MessageRequest messageRequest) {
-        if ( messageRequest == null ) {
-            return null;
-        }
-
-        MessageResponse.MessageResponseBuilder messageResponse = MessageResponse.builder();
-
-        messageResponse.content( messageRequest.getContent() );
-        messageResponse.messageType( messageRequest.getMessageType() );
-        messageResponse.fileUrl( messageRequest.getFileUrl() );
-
-        return messageResponse.build();
     }
 
     protected User userInfoDTOToUser(UserInfoDTO userInfoDTO) {
@@ -132,6 +89,22 @@ public class ChatMapperImpl implements ChatMapper {
         return list1;
     }
 
+    protected User messageUserToUser(MessageUser messageUser) {
+        if ( messageUser == null ) {
+            return null;
+        }
+
+        User.UserBuilder user = User.builder();
+
+        user.id( messageUser.getId() );
+        user.username( messageUser.getUsername() );
+        user.email( messageUser.getEmail() );
+        user.status( messageUser.getStatus() );
+        user.avatar( messageUser.getAvatar() );
+
+        return user.build();
+    }
+
     protected Messages messageDTOToMessages(MessageDTO messageDTO) {
         if ( messageDTO == null ) {
             return null;
@@ -140,9 +113,10 @@ public class ChatMapperImpl implements ChatMapper {
         Messages.MessagesBuilder messages = Messages.builder();
 
         messages.id( messageDTO.getId() );
-        messages.sender( userInfoDTOToUser( messageDTO.getSender() ) );
+        messages.sender( messageUserToUser( messageDTO.getSender() ) );
         messages.content( messageDTO.getContent() );
         messages.createdAt( messageDTO.getCreatedAt() );
+        messages.delivered( messageDTO.getDelivered() );
 
         return messages.build();
     }

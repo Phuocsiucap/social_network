@@ -39,5 +39,6 @@ public class Messages {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    private Boolean delivered;
+    private Boolean delivered = false;
+    private Boolean isRead;
 }

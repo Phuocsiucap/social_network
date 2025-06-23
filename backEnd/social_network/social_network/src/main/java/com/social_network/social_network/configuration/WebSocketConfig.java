@@ -11,12 +11,13 @@ import org.springframework.web.socket.config.annotation.*;
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final ChatWebSocketHandler chatWebSocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         //dang ky endponit websocket tai //ws/chat
         //cho phep tat ca cac origin dung(cors) -(co the gioi han neu can)
-        registry.addHandler(chatWebSocketHandler, "/ws/chat").setAllowedOrigins("*");
+        registry.addHandler(webSocketHandler, "/ws").setAllowedOrigins("*");
+
     }
 }

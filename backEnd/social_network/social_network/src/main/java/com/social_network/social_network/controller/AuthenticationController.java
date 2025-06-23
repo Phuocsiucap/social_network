@@ -1,13 +1,10 @@
 package com.social_network.social_network.controller;
-import java.text.ParseException;
 
 import com.social_network.social_network.dto.request.UserCreationRequest;
 import com.social_network.social_network.dto.request.UserUpdateRequest;
 import com.social_network.social_network.dto.response.UserInfoDTO;
-import com.social_network.social_network.dto.response.UserResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.social_network.social_network.dto.response.APIResponse;
@@ -17,7 +14,6 @@ import com.social_network.social_network.dto.request.LoginRequest;
 import com.social_network.social_network.dto.response.AuthenticationResponse;
 //import com.social_network.social_network.dto.response.IntrospectResponse;
 import com.social_network.social_network.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -63,13 +59,13 @@ public class  AuthenticationController {
                 .build();
     }
 
-    @DeleteMapping("/{userId}")
-    APIResponse<UserResponse> deleteUser(@PathVariable("userId") String userId) {
-        boolean success = authenticationService.deleteUser(userId);
-        return APIResponse.<UserResponse>builder()
-                .success(success)
-                .build();
-    }
+//    @DeleteMapping("/{userId}")
+//    APIResponse<UserResponse> deleteUser(@PathVariable("userId") String userId) {
+//        boolean success = authenticationService.deleteUser(userId);
+//        return APIResponse.<UserResponse>builder()
+//                .success(success)
+//                .build();
+//    }
 
 //    @PostMapping("/introspect")
 //    APIResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) {

@@ -12,6 +12,10 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Messages,String> {
     List<Messages> findAllByChat_Id(String chatId, Limit limit);
+    Page<Messages> findAllByChat_IdOrderByCreatedAtDesc(String chatId, Pageable pageable);
+    Page<Messages> findAllByChat_Id(String chatId, Pageable pageable);
+
+    List<Messages> findAllByChat_IdAndIsReadFalse(String chatId);
 
 
 }

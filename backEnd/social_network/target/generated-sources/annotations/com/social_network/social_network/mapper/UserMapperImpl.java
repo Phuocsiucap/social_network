@@ -2,15 +2,15 @@ package com.social_network.social_network.mapper;
 
 import com.social_network.social_network.dto.request.UserCreationRequest;
 import com.social_network.social_network.dto.request.UserUpdateRequest;
+import com.social_network.social_network.dto.response.MessageUser;
 import com.social_network.social_network.dto.response.UserInfoDTO;
-import com.social_network.social_network.dto.response.UserResponse;
 import com.social_network.social_network.entity.User;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-11T16:00:24+0700",
+    date = "2025-06-13T19:02:26+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
@@ -35,22 +35,20 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public UserResponse toUserResponse(User user) {
+    public MessageUser toMessageUser(User user) {
         if ( user == null ) {
             return null;
         }
 
-        UserResponse.UserResponseBuilder userResponse = UserResponse.builder();
+        MessageUser.MessageUserBuilder messageUser = MessageUser.builder();
 
-        userResponse.id( user.getId() );
-        userResponse.username( user.getUsername() );
-        userResponse.password( user.getPassword() );
-        userResponse.email( user.getEmail() );
-        userResponse.avatar( user.getAvatar() );
-        userResponse.birthday( user.getBirthday() );
-        userResponse.gender( user.getGender() );
+        messageUser.id( user.getId() );
+        messageUser.username( user.getUsername() );
+        messageUser.email( user.getEmail() );
+        messageUser.status( user.getStatus() );
+        messageUser.avatar( user.getAvatar() );
 
-        return userResponse.build();
+        return messageUser.build();
     }
 
     @Override
