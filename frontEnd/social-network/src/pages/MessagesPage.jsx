@@ -4,7 +4,8 @@ import { ChatList } from '../components/features/messages';
 import ChatWindow from '../components/features/messages/ChatWindow';
 import { formatDistanceToNow } from 'date-fns';
 import ErrorBoundary from '../components/common/ErrorBoundary';
-import { useAuth, useMessages, useWebSocket } from '../hooks';
+import { useAuth, useMessages } from '../hooks';
+import { useWebSocketStore } from '../store';
 
 const MessagesPage = () => {
   const { user } = useAuth();
@@ -28,8 +29,9 @@ const MessagesPage = () => {
   } = useMessages();
 
   // Chỉ đọc trạng thái WebSocket, không kết nối
-  const { isConnected: isWebSocketConnected } = useWebSocket();
   
+  const isConnected = useWebSocketStore(state => state.isConnected); // ✅
+  const isWebSocketConnected = isConnected;
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter chats based on search query - memoized

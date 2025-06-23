@@ -1,4 +1,4 @@
-// hooks/useMessages2.js - Fixed Version
+// hooks/useMessages2.js - Fixed Event Registration
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient, useMutation, useInfiniteQuery } from '@tanstack/react-query';
 import { messagesAPI } from '../services';
@@ -15,7 +15,7 @@ const useMessages = () => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [typingUsers, setTypingUsers] = useState({});
   const typingTimeoutRef = useRef({});
-  // const isWebSocketConnectedRef = useRef(false);
+  const isWebSocketConnectedRef = useRef(false);
 
   // ✅ 1. Fetch danh sách cuộc trò chuyện
   const {
@@ -64,8 +64,9 @@ const useMessages = () => {
     }
   });
 
-  // ✅ 3. Setup WebSocket event listeners
+  // ✅ 3. Setup WebSocket event listeners - FIXED EVENT NAMES
   useEffect(() => {
+    // Handler for new messages
     const handleNewMessage = (data) => {
       const { message, conversationId } = data;
       console.log('Received new message via WebSocket:', message);
@@ -108,6 +109,7 @@ const useMessages = () => {
       });
     };
 
+    // Handler for message read status
     const handleMessageRead = (data) => {
       const { conversationId, userId, messageId } = data;
       console.log('Message marked as read via WebSocket:', data);
@@ -143,6 +145,7 @@ const useMessages = () => {
       });
     };
 
+    // Handler for typing indicator
     const handleUserTyping = (data) => {
       const { conversationId, userId, username, isTyping } = data;
       
@@ -183,6 +186,7 @@ const useMessages = () => {
       });
     };
 
+    // Handler for conversation updates
     const handleConversationUpdate = (data) => {
       const { conversation } = data;
       console.log('Conversation updated via WebSocket:', conversation);
@@ -201,39 +205,70 @@ const useMessages = () => {
       });
     };
 
-    // const handleWebSocketConnect = () => {
-    //   console.log('WebSocket connected');
-    //   isWebSocketConnectedRef.current = true;
-    // };
+    // WebSocket connection handlers
+    const handleWebSocketConnect = () => {
+      console.log('WebSocket connected');
+      isWebSocketConnectedRef.current = true;
+    };
 
-    // const handleWebSocketDisconnect = () => {
-    //   console.log('WebSocket disconnected');
-    //   isWebSocketConnectedRef.current = false;
-    //   setTypingUsers({});
-    // };
+    const handleWebSocketDisconnect = () => {
+      console.log('WebSocket disconnected');
+      isWebSocketConnectedRef.current = false;
+      setTypingUsers({});
+    };
 
     const handleWebSocketError = (error) => {
       console.error('WebSocket error:', error);
     };
 
-    // Register event listeners
-    WebSocketService.on('newMessage', handleNewMessage);
-    WebSocketService.on('messageRead', handleMessageRead);
-    WebSocketService.on('userTyping', handleUserTyping);
-    WebSocketService.on('conversationUpdated', handleConversationUpdate);
-   //
+    // ✅ FIXED: Register event listeners with correct event names
+    // These should match the messageType values sent from your server
+    WebSocketService.on('NEW_MESSAGE', handleNewMessage);          // Server sends: { messageType: 'NEW_MESSAGE', data: {...} }
+    WebSocketService.on('MESSAGE_READ', handleMessageRead);        // Server sends: { messageType: 'MESSAGE_READ', data: {...} }
+    WebSocketService.on('USER_TYPING', handleUserTyping);          // Server sends: { messageType: 'USER_TYPING', data: {...} }
+    WebSocketService.on('CONVERSATION_UPDATED', handleConversationUpdate); // Server sends: { messageType: 'CONVERSATION_UPDATED', data: {...} }
+    
+    // Connection status events
+    WebSocketService.on('connected', handleWebSocketConnect);
+    WebSocketService.on('disconnected', handleWebSocketDisconnect);
     WebSocketService.on('error', handleWebSocketError);
 
-    // Cleanup
+    // Alternative: If you want to handle all messages with a single listener
+    const handleGenericMessage = (data) => {
+      console.log('Generic WebSocket message:', data);
+      
+      switch(data.messageType) {
+        case 'NEW_MESSAGE':
+          handleNewMessage(data.data);
+          break;
+        case 'MESSAGE_READ':
+          handleMessageRead(data.data);
+          break;
+        case 'USER_TYPING':
+          handleUserTyping(data.data);
+          break;
+        case 'CONVERSATION_UPDATED':
+          handleConversationUpdate(data.data);
+          break;
+        default:
+          console.log('Unhandled message type:', data.messageType);
+      }
+    };
+
+    // You can also listen to the generic 'message' event
+    // WebSocketService.on('message', handleGenericMessage);
+
+    // Cleanup function
     return () => {
-      WebSocketService.off('newMessage', handleNewMessage);
-      WebSocketService.off('messageRead', handleMessageRead);
-      WebSocketService.off('userTyping', handleUserTyping);
-      WebSocketService.off('conversationUpdated', handleConversationUpdate);
-      // WebSocketService.off('connected', handleWebSocketConnect);
-      // WebSocketService.off('disconnected', handleWebSocketDisconnect);
+      WebSocketService.off('NEW_MESSAGE', handleNewMessage);
+      WebSocketService.off('MESSAGE_READ', handleMessageRead);
+      WebSocketService.off('USER_TYPING', handleUserTyping);
+      WebSocketService.off('CONVERSATION_UPDATED', handleConversationUpdate);
+      WebSocketService.off('connected', handleWebSocketConnect);
+      WebSocketService.off('disconnected', handleWebSocketDisconnect);
       WebSocketService.off('error', handleWebSocketError);
       
+      // Clean up typing timeouts
       Object.values(typingTimeoutRef.current).forEach(timeout => {
         clearTimeout(timeout);
       });
@@ -362,7 +397,7 @@ const useMessages = () => {
     messagesError,
     
     // WebSocket states
-    // isWebSocketConnected: isWebSocketConnectedRef.current,
+    isWebSocketConnected: isWebSocketConnectedRef.current,
     typingUsers: getTypingUsers(),
     
     // Actions

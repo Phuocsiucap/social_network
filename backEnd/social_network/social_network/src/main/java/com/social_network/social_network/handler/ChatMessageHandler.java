@@ -68,15 +68,18 @@ public class ChatMessageHandler extends MessageHandler {
         MessageDTO savedMessage = messageService.saveMessage(messageRequest, senderId);
 
         if (savedMessage != null) {
-            sessionManager.sendMessageToChatId(message.getChatId(), savedMessage);
-            updateDeliveryStatus(savedMessage, message.getChatId());
 
-            Map<String, Object> ack = Map.of(
-                    "messageType", "newMessage",
-                    "chatId", message.getChatId(),
-                    "content", "Message sent successfully"
+
+            Map<String, Object> response = Map.of(
+                    "messageType", "NEW_MESSAGE",
+                    "data", Map.of(
+                            "message", savedMessage,
+                            "conversationId", message.getChatId()
+                    )
             );
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(ack)));
+            sessionManager.sendMessageToChatId(message.getChatId(), response);
+            updateDeliveryStatus(savedMessage, message.getChatId());
+//            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
         } else {
             session.sendMessage(new TextMessage("Failed to send message"));
         }

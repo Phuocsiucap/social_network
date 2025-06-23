@@ -10,9 +10,10 @@ class WebSocketService {
     }
 
     // Connect to WebSocket server with token
-    connect(token) {
+    connect(token,tabId) {
         this.reconnectManager.setToken(token);
-        return this.connection.connect(token);
+        this.reconnectManager.setTabId(tabId);
+        return this.connection.connect(token, tabId);
     }
 
     // event listners

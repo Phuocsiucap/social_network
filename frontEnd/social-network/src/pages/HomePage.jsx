@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share2, Camera, Image, Video, Smile } from 'lucide-react';
 import { Button, Card } from '../components/ui';
 import { AppLayout } from '../components/layout';
-import { useAuth, useWebSocket } from '../hooks';
+import { useAuth } from '../hooks';
 import { useWebSocketStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 

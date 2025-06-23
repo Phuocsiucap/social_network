@@ -2,9 +2,17 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+// Tạo tabId duy nhất (dùng sessionStorage để giữ tabId sau reload)
+if (!sessionStorage.getItem("tabId")) {
+  sessionStorage.setItem("tabId", crypto.randomUUID());
+}
+
+
 const useWebSocketStore = create(
+  
   devtools((set, get) => ({
     // Connection state only
+    tabId : sessionStorage.getItem('tabId') ,
     isConnected: false,
     connectionState: 'DISCONNECTED',
     reconnectAttempts: 0,

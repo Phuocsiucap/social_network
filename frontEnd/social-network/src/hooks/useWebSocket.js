@@ -2,12 +2,13 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { authStore } from '../store';
 import { useWebSocketStore } from '../store';
-import { useMessagesStore } from '../store'; // Import messages store
+
 import { websocketService } from '../services';
 
 const useWebSocket = () => {
   const {user, token} = authStore();
   const {
+    tabId,
     isConnected,
     connectionState,
     reconnectAttempts,
@@ -20,9 +21,9 @@ const useWebSocket = () => {
 
   // const isInitialized = useRef(false);
 
-  const connect = useCallback((token) => {
+  const connect = useCallback((token, tabId) => {
     try {
-      websocketService.connect(token);
+      websocketService.connect(token,tabId);
     } catch (error) {
       console.error('failed to connect to WebSocket:', error);
       throw error;
@@ -68,7 +69,7 @@ const useWebSocket = () => {
 
     if (token && user && !websocketService.isConnected) {
       console.log('🔌 Connecting WebSocket after listeners setup...');
-      websocketService.connect(token);
+      websocketService.connect(token,tabId);
     }
 
     // Cleanup function
@@ -76,7 +77,7 @@ const useWebSocket = () => {
       websocketService.disconnect();
     };
   }, [
-    token, user,
+    token, user, tabId,
     setConnected, 
     setConnectionState, 
     setReconnectAttempts, 

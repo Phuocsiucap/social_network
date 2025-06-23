@@ -1,7 +1,7 @@
 // components/features/messages/ChatList.jsx
 import React from 'react';
 import { Search, MessageCircle, Users, RefreshCw } from 'lucide-react';
-import { useMessagesStore } from '../../../store';
+// import { useMessagesStore } from '../../../store';
 
 const ChatList = ({ 
   user, 
@@ -16,7 +16,7 @@ const ChatList = ({
   onRefresh
 }) => {
   // Lấy unread count từ store
-  const { getUnreadCount } = useMessagesStore();
+  // const { getUnreadCount } = useMessagesStore();
 
   const handleChatClick = (chat) => {
     onChatSelect(chat);
@@ -42,8 +42,8 @@ const ChatList = ({
 
   const getUnreadCountForChat = (chat) => {
     // Ưu tiên lấy từ store trước, sau đó mới từ chat object
-    const storeUnreadCount = getUnreadCount(chat.id);
-    return storeUnreadCount || chat.unreadCount || 0;
+    // const storeUnreadCount = getUnreadCount(chat.id);
+    return  chat.unreadCount || 0;
   };
 
   const isOnline = (chat) => {

@@ -2,14 +2,17 @@
 class WebSocketConnection {
     constructor() {
         this.socket = null;
+        this.tabId = null;
         this.isConnected = false;
         this.token = null;
         this.listeners = new Map();
     }
 
-    connect(token) {
+    connect(token,tabId) {
         this.token = token;
-        const wsUrl = `${import.meta.env.VITE_WS_URL}?token=${token}`;
+        this.tabId = tabId;
+        console.log("--------------------------------------------------------------------", tabId);
+        const wsUrl = `${import.meta.env.VITE_WS_URL}?token=${token}&tabId=${tabId}`;
         try {
             this.socket = new WebSocket(wsUrl);
             this.setupEventListeners();

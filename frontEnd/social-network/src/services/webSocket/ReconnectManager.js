@@ -7,6 +7,7 @@ class ReconnectManager {
         this.maxReconnectAttempts = 5; // Maximum number of reconnection attemptst
         this.reconnectDelay = 5000; // Delay between reconnection attempts in milliseconds
         this.token = null;
+        this.tabId = null;
         
         this.setupListeners();
     }
@@ -40,7 +41,7 @@ class ReconnectManager {
         this.reconnectInterval = setTimeout(() => {
             if(this.token) {
                 try {
-                    this.connection.connect(this.token);
+                    this.connection.connect(this.token, this.tabId);
 
                 }catch(error) {
                     console.error ("Reconnect failed:", error);
@@ -54,6 +55,10 @@ class ReconnectManager {
 
     setToken(token) {
         this.token = token;
+    }
+    
+    setTabId(tabId) {
+        this.tabId = tabId;
     }
 
     clearReconnectInterval() {
