@@ -17,6 +17,8 @@ public class MessageDTO {
     private MessageUser sender; // với group chat
     private LocalDateTime createdAt;
     private String content;
+    private String messageType;
+    private String fileUrl;
     private Boolean delivered;
     private Boolean isRead;
 }

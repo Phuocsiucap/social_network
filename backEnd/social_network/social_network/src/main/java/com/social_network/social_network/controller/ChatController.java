@@ -54,7 +54,7 @@ public class ChatController {
 
 
 
-    @PostMapping("/getOrCreatChat")
+    @PostMapping("/getOrCreateChat")
     public APIResponse<ChatDTO> getOrCreateChat(@RequestBody Map<String, String> payload) {
         String friendId = payload.get("userId"); // phải đúng với key bên frontend gửi
         ChatDTO chat = chatService.getOrCreateChat(friendId);

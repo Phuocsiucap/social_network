@@ -20,7 +20,7 @@ export const AZURE_CONFIG = {
 export const DEFAULT_USER_VALUES = {
   username: '',
   email: '',
-  avatar: '/images/placeholder-avatar.png',
+  avatar: '/placeholder-avatar.png',
   birthday: '',
   gender: '',
   biography: '',
@@ -31,7 +31,7 @@ export const DEFAULT_USER_VALUES = {
 };
 
 // Default Assets
-export const DEFAULT_AVATAR = '/images/placeholder-avatar.png';
+export const DEFAULT_AVATAR = '/placeholder-avatar.png';
 export const DEFAULT_COVER = '/images/placeholder-cover.jpg';
 export const APP_LOGO = '/images/logo.svg';
 

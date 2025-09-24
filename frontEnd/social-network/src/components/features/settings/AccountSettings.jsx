@@ -2,11 +2,21 @@
 // ==========================================
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from './../../../hooks';
 
 const AccountSettings = () => {
-    // const { logout } = useAuth();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    const handleLogout = async() => {
+      try {
+        await logout();
+        navigate('/');
+      } catch (error) {
+        console.error("Logout failed:", error);
+    }
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -20,10 +30,10 @@ const AccountSettings = () => {
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
           
-          <button  className="flex items-center justify-between w-full p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+          <button  className="flex items-center justify-between w-full p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" onClick={handleLogout}>
             <div className="flex items-center space-x-3">
               <LogOut className="w-5 h-5 text-red-600" />
-              <span className="text-sm font-medium text-red-800">Đăng xuất khỏi tất cả thiết bị</span>
+              <span className="text-sm font-medium text-red-800" >Đăng xuất khỏi tất cả thiết bị</span>
             </div>
             <ChevronRight className="w-5 h-5 text-red-400" />
           </button>

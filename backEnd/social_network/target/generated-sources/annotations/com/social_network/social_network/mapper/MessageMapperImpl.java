@@ -1,5 +1,6 @@
 package com.social_network.social_network.mapper;
 
+import com.social_network.social_network.dto.WebSocketDataDTO;
 import com.social_network.social_network.dto.request.MessageRequest;
 import com.social_network.social_network.dto.response.MessageDTO;
 import com.social_network.social_network.dto.response.MessageUser;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-13T19:02:26+0700",
+    date = "2025-09-23T18:07:28+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
@@ -54,9 +55,32 @@ public class MessageMapperImpl implements MessageMapper {
         messageDTO.sender( userToMessageUser( messages.getSender() ) );
         messageDTO.createdAt( messages.getCreatedAt() );
         messageDTO.content( messages.getContent() );
+        messageDTO.messageType( messages.getMessageType() );
+        messageDTO.fileUrl( messages.getFileUrl() );
         messageDTO.delivered( messages.getDelivered() );
+        messageDTO.isRead( messages.getIsRead() );
 
         return messageDTO.build();
+    }
+
+    @Override
+    public WebSocketDataDTO toWebSocketDataDTO(Messages messages) {
+        if ( messages == null ) {
+            return null;
+        }
+
+        WebSocketDataDTO webSocketDataDTO = new WebSocketDataDTO();
+
+        webSocketDataDTO.setContent( messages.getContent() );
+        webSocketDataDTO.setMessageType( messages.getMessageType() );
+        webSocketDataDTO.setFileUrl( messages.getFileUrl() );
+        webSocketDataDTO.setId( messages.getId() );
+        webSocketDataDTO.setSender( userToMessageUser( messages.getSender() ) );
+        webSocketDataDTO.setCreatedAt( messages.getCreatedAt() );
+        webSocketDataDTO.setDelivered( messages.getDelivered() );
+        webSocketDataDTO.setIsRead( messages.getIsRead() );
+
+        return webSocketDataDTO;
     }
 
     protected MessageUser userToMessageUser(User user) {

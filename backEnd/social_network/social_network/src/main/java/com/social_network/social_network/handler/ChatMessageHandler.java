@@ -1,15 +1,18 @@
 package com.social_network.social_network.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.social_network.social_network.dto.WebSocketDataDTO;
 import com.social_network.social_network.dto.WebSocketMessageDTO;
 import com.social_network.social_network.dto.request.MessageRequest;
 import com.social_network.social_network.dto.response.MessageDTO;
 import com.social_network.social_network.service.ChatService;
+import com.social_network.social_network.service.CloudinaryService;
 import com.social_network.social_network.service.MessageService;
 import com.social_network.social_network.service.WebSocketSessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -22,6 +25,7 @@ import java.util.Map;
 public class ChatMessageHandler extends MessageHandler {
 
     private final MessageService messageService;
+//    private final CloudinaryService cloudinaryService;
     private final ChatService chatService;
     private final ObjectMapper objectMapper;
     private final WebSocketSessionManager sessionManager;
@@ -38,7 +42,7 @@ public class ChatMessageHandler extends MessageHandler {
         switch (message.getMessageType()) {
             case "CHAT":
             case "MEDIA":
-                handleChatOrMedia(session, senderId, message);
+                handleChatOrMedia(session, senderId, message.getData());
                 break;
             case "CHAT_JOIN":
                 handleJoin(session, senderId, message);
@@ -57,47 +61,71 @@ public class ChatMessageHandler extends MessageHandler {
         }
     }
 
-    private void handleChatOrMedia(WebSocketSession session, String senderId, WebSocketMessageDTO message) throws Exception {
-        MessageRequest messageRequest = new MessageRequest();
-        messageRequest.setContent(message.getContent());
+    private void handleChatOrMedia(WebSocketSession session, String senderId, Object messageData) throws Exception {
+        try {
+            // Convert Object to WebSocketDataDTO using ObjectMapper
+            WebSocketDataDTO data;
+            if (messageData instanceof WebSocketDataDTO) {
+                data = (WebSocketDataDTO) messageData;
+            } else {
+                data = objectMapper.convertValue(messageData, WebSocketDataDTO.class);
+            }
 
-        messageRequest.setChatId(message.getChatId());
-        messageRequest.setMessageType(message.getMessageType());
-        messageRequest.setFileUrl(message.getFileUrl());
-        
-        MessageDTO savedMessage = messageService.saveMessage(messageRequest, senderId);
-
-        if (savedMessage != null) {
+            MessageRequest messageRequest = new MessageRequest();
+            messageRequest.setContent(data.getContent());
+            messageRequest.setChatId(data.getChatId());
+            messageRequest.setMessageType(data.getMessageType());
 
 
-            Map<String, Object> response = Map.of(
-                    "messageType", "NEW_MESSAGE",
-                    "data", Map.of(
-                            "message", savedMessage,
-                            "conversationId", message.getChatId()
-                    )
-            );
-            sessionManager.sendMessageToChatId(message.getChatId(), response);
-            updateDeliveryStatus(savedMessage, message.getChatId());
-//            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
-        } else {
-            session.sendMessage(new TextMessage("Failed to send message"));
+            messageRequest.setFileUrl(data.getFileUrl());
+            WebSocketDataDTO savedMessage = messageService.saveMessage(messageRequest, senderId);
+
+            if (savedMessage != null) {
+                Map<String, Object> response = Map.of(
+                        "messageType", "NEW_MESSAGE",
+                        "data", Map.of(
+                                "message", savedMessage,
+                                "conversationId", data.getChatId()
+                        )
+                );
+                sessionManager.sendMessageToChatId(data.getChatId(), response);
+                updateDeliveryStatus(savedMessage, data.getChatId());
+            } else {
+                session.sendMessage(new TextMessage("Failed to send message"));
+            }
+        } catch (Exception e) {
+            log.error("Error handling chat/media message: {}", e.getMessage(), e);
+            session.sendMessage(new TextMessage("Error processing message: " + e.getMessage()));
         }
     }
 
-    private void handleJoin(WebSocketSession session, String senderId, WebSocketMessageDTO message) throws Exception {
-        log.info("User {} joined chat {}", senderId, message.getChatId());
+    private void handleJoin(WebSocketSession session, String senderId,Object messageData) throws Exception {
+        // Convert Object to WebSocketDataDTO using ObjectMapper
+        WebSocketDataDTO data;
+        if (messageData instanceof WebSocketDataDTO) {
+            data = (WebSocketDataDTO) messageData;
+        } else {
+            data = objectMapper.convertValue(messageData, WebSocketDataDTO.class);
+        }
+        log.info("User {} joined chat {}", senderId, data.getChatId());
 
-        session.sendMessage(new TextMessage("Joined chat " + message.getChatId()));
+        session.sendMessage(new TextMessage("Joined chat " + data.getChatId()));
     }
 
-    private void handleLeave(WebSocketSession session, String senderId, WebSocketMessageDTO message) throws Exception {
-        log.info("User {} left chat {}", senderId, message.getChatId());
+    private void handleLeave(WebSocketSession session, String senderId, Object messageData) throws Exception {
+        // Convert Object to WebSocketDataDTO using ObjectMapper
+        WebSocketDataDTO data;
+        if (messageData instanceof WebSocketDataDTO) {
+            data = (WebSocketDataDTO) messageData;
+        } else {
+            data = objectMapper.convertValue(messageData, WebSocketDataDTO.class);
+        }
+        log.info("User {} left chat {}", senderId, data.getChatId());
 
-        session.sendMessage(new TextMessage("Left chat " + message.getChatId()));
+        session.sendMessage(new TextMessage("Left chat " + data.getChatId()));
     }
 
-    private void handleRead(WebSocketSession session, String senderId, WebSocketMessageDTO message) throws Exception {
+    private void handleRead(WebSocketSession session, String senderId, Object messageDatae) throws Exception {
 //        log.info("User {} read message {} in chat {}", senderId, message.getMessageId(), message.getChatId());
 //
 //        // Gửi thông báo đã đọc đến người khác
@@ -129,7 +157,7 @@ public class ChatMessageHandler extends MessageHandler {
 //        }
     }
 
-    private void updateDeliveryStatus(MessageDTO savedMessage, String chatId) {
+    private void updateDeliveryStatus(WebSocketDataDTO savedMessage, String chatId) {
 //        for (String userId : chatService.getUserIdsByChatId(chatId)) {
 //            if (!userId.equals(savedMessage.getSenderId())) {
 //                sessionManager.sendToUser(userId, Map.of(

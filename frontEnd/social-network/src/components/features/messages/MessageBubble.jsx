@@ -8,6 +8,8 @@ const MessageBubble = ({
   isOwn, 
   showAvatar, 
   showSenderName, 
+  showTimestamp = true, // Mặc định hiển thị timestamp
+  isConsecutive = false, // Mặc định không liên tiếp
   user, 
   onRetry 
 }) => {

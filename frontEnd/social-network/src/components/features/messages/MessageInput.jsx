@@ -3,11 +3,11 @@ import { Send, Paperclip, Smile, X, Image as ImageIcon, File, Camera } from 'luc
 import { useRef, useState } from 'react';
 
 const MessageInput = ({ 
-  value, 
+  value, //MESSAGE
   onChange, 
-  onSubmit, 
+  onSubmit, //SEND TEXT MESSAGE
   onKeyPress,
-  onSendFile,
+  onSendFile, //SEND FILE
   disabled = false,
   placeholder = "Nhập tin nhắn...",
   onEmoji
@@ -60,7 +60,7 @@ const MessageInput = ({
     // Send files first if any
     if (selectedFiles.length > 0) {
       for (const file of selectedFiles) {
-        await onSendFile?.(file);
+        await onSendFile?.(file).data;
       }
       setSelectedFiles([]);
     }

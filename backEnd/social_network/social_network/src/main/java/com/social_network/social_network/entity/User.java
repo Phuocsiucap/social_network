@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,8 +28,9 @@ public class User {
     private String gender;
     private String biography;
     private String phone;
-
+    private String location;
     private LocalDateTime lastActive;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
+
 }

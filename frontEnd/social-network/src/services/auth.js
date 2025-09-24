@@ -63,6 +63,7 @@ const authAPI = {
         'Content-Type': 'multipart/form-data'
       }
     })
+    console.log('Avatar updated:', response.data);
     return response.data
   },
 

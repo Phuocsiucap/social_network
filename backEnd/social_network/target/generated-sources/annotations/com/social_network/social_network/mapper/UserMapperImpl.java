@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-13T19:02:26+0700",
+    date = "2025-09-23T18:07:28+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
@@ -68,6 +68,8 @@ public class UserMapperImpl implements UserMapper {
         userInfoDTO.gender( user.getGender() );
         userInfoDTO.biography( user.getBiography() );
         userInfoDTO.phone( user.getPhone() );
+        userInfoDTO.location( user.getLocation() );
+        userInfoDTO.lastActive( user.getLastActive() );
 
         return userInfoDTO.build();
     }

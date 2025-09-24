@@ -3,6 +3,8 @@ package com.social_network.social_network.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,4 +19,6 @@ public class UserInfoDTO {
     private String gender;
     private String biography;
     private String phone;
+    private String location;
+    private LocalDateTime lastActive;
 }

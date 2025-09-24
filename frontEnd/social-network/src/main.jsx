@@ -3,7 +3,8 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import './styles/globals.css'
+import './styles/globals.css';
+import './styles/scrollbar.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuth, useWebSocket } from './hooks';
 

@@ -8,10 +8,10 @@ import {
   AlertCircle,
   RefreshCw,
   Users,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { MessageBubble, TypingIndicator, DateSeparator, MessageInput } from './index';
 
 const ChatWindow = ({
@@ -42,10 +42,10 @@ const ChatWindow = ({
   const lastScrollTop = useRef(0);
   const typingTimeoutRef = useRef(null);
 
-  console.log("ChatWindow - conversation:", conversation);
-  console.log("ChatWindow - messages:", messages);
+  // console.log("ChatWindow - conversation:", conversation);
+  // console.log("ChatWindow - messages:", messages);
 
-  // Auto-scroll to bottom for new messages
+  // Auto-scroll to bottom for new messages and when conversation changes
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -58,7 +58,20 @@ const ChatWindow = ({
     }
   }, [messages.length]);
 
-  // Throttled scroll handler
+  // Scroll to bottom when conversation changes
+  useEffect(() => {
+    if (conversation?.id && messages.length > 0) {
+      // Delay scroll để đảm bảo messages đã render xong
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [conversation?.id, messages.length > 0]);
+
+
+  // Throttled scroll handler with auto load more
   const handleScroll = useCallback(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -68,8 +81,9 @@ const ChatWindow = ({
     
     setShowScrollToBottom(!isAtBottom);
 
-    // Load more messages when scrolling to top
-    if (scrollTop < 100 && scrollTop < lastScrollTop.current && hasNextPage && !isFetchingNextPage) {
+    // Auto load more messages when scrolling near top (50px from top)
+    if (scrollTop < 50 && hasNextPage && !isFetchingNextPage) {
+      console.log('Auto loading more messages...');
       onLoadMoreMessages?.();
     }
 
@@ -155,44 +169,55 @@ const ChatWindow = ({
     // Stop typing indicator
     handleTypingStop();
     
-    // Send message via WebSocket
-    onSendMessage?.({
+    const data = {
       content: content.trim(),
-      type: determineMessageType(content),
-      conversationId: conversation?.id,
-      timestamp: new Date().toISOString()
-    });
-    setMessageContent('');
-  }, [isSending, onSendMessage, isWebSocketConnected, handleTypingStop, conversation?.id]);
+      messageType: determineMessageType(content),
+      chatId: conversation?.id
+    }
+    // Send message via WebSocket
+    onSendMessage?.(data);
 
-  // Handle send file
+    setMessageContent('');
+  }, [isSending, onSendMessage, isWebSocketConnected, handleTypingStop, conversation]);
+
+  // Handle send file - Updated to encode file as Base64
   const handleSendFile = useCallback(async (file) => {
     if (!file || isSending || !isWebSocketConnected) return;
 
     try {
-      // Stop typing indicator
       handleTypingStop();
 
-      const messageType = determineMessageType(null, file);
-      
-      // Create file message data
+      // Step 1: Upload file via HTTP
+      const uploadResult = await onSendFile({
+        file,
+        chatId: conversation?.id
+      });
+
+      console.log("uploadresult: ", uploadResult)
+      if (!uploadResult?.fileUrl) {
+        throw new Error(uploadResult?.message || 'Upload failed');
+      }
+
+      // Step 2: Send message with file URL via WebSocket
       const fileMessageData = {
-        type: messageType,
+        messageType: determineMessageType(null, file),
+        chatId: conversation?.id,
+        fileUrl: uploadResult.fileUrl,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
-        conversationId: conversation?.id,
-        timestamp: new Date().toISOString(),
-        file: file // File object to be uploaded
       };
 
-      // Send file via WebSocket or upload handler
-      await onSendFile?.(fileMessageData);
-      
+      console.log("Sending file message:", fileMessageData);
+      await onSendMessage?.(fileMessageData);
+
     } catch (error) {
       console.error('Error sending file:', error);
+      alert('Failed to send file: ' + error.message);
     }
-  }, [isSending, onSendFile, isWebSocketConnected, handleTypingStop, conversation?.id]);
+  }, [isSending, onSendMessage, isWebSocketConnected, handleTypingStop, conversation]);
+
+
 
   // Handle message input submit
   const handleSubmit = useCallback((e) => {
@@ -315,36 +340,39 @@ const ChatWindow = ({
 
       {/* Messages Area */}
       <div className="flex-1 relative overflow-hidden">
-        {/* Load more indicator */}
-        {hasNextPage && (
-          <LoadMoreIndicator 
-            onLoadMore={onLoadMoreMessages}
-            isLoading={isFetchingNextPage}
-          />
-        )}
+        
 
         {/* Messages Container */}
-        <div
-          ref={messagesContainerRef}
-          className="h-full overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-          style={{ 
-            paddingTop: hasNextPage ? '80px' : '16px',
-            maxHeight: '100%'
-          }}
-        >
-          <MessagesContent
-            isLoadingMessages={isLoadingMessages}
-            messagesError={messagesError}
-            sendError={sendError}
-            messageGroups={messageGroups}
-            conversation={conversation}
-            user={user}
-            onRetry={handleRetry}
-            typingUsers={typingUsers}
-            isWebSocketConnected={isWebSocketConnected}
-          />
-          <div ref={messagesEndRef} />
-        </div>
+      <div
+        ref={messagesContainerRef}
+        className="h-full overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+      >
+        {/* Loading indicator at top when fetching more messages */}
+        {isFetchingNextPage && (
+          <div className="flex justify-center py-4 sticky top-0 bg-white z-10">
+            <div className="flex items-center space-x-2 text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Loading more messages...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Messages Content */}
+        <MessagesContent
+          isLoadingMessages={isLoadingMessages}
+          messagesError={messagesError}
+          sendError={sendError}
+          messageGroups={messageGroups}
+          conversation={conversation}
+          user={user}
+          onRetry={handleRetry}
+          typingUsers={typingUsers}
+          isWebSocketConnected={isWebSocketConnected}
+        />
+        
+        {/* Scroll anchor for auto-scroll to bottom */}
+        <div ref={messagesEndRef} />
+      </div>
 
         {/* Scroll to bottom button */}
         {showScrollToBottom && (
@@ -390,6 +418,16 @@ const ChatHeader = React.memo(({
   <div className="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white">
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-3">
+        {/* Back button for mobile */}
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors md:hidden mr-2"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+        )}
+
         {/* Avatar */}
         <div className="relative">
           {conversationInfo.avatar ? (
@@ -453,38 +491,12 @@ const ChatHeader = React.memo(({
         <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <MoreVertical className="w-5 h-5 text-gray-600" />
         </button>
-        {onClose && (
-          <button 
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors md:hidden"
-          >
-            <X className="w-5 h-5 text-gray-600" />
-          </button>
-        )}
       </div>
     </div>
   </div>
 ));
 
-// Load more indicator component
-const LoadMoreIndicator = React.memo(({ onLoadMore, isLoading }) => (
-  <div className="absolute top-0 left-0 right-0 z-10 p-4 text-center">
-    <button
-      onClick={onLoadMore}
-      disabled={isLoading}
-      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors disabled:opacity-50"
-    >
-      {isLoading ? (
-        <div className="flex items-center space-x-2">
-          <RefreshCw className="w-4 h-4 animate-spin" />
-          <span>Loading...</span>
-        </div>
-      ) : (
-        'Load more messages'
-      )}
-    </button>
-  </div>
-));
+
 
 // Messages content component
 const MessagesContent = React.memo(({ 
@@ -597,7 +609,6 @@ const MessagesContent = React.memo(({
 
 // Set display names for debugging
 ChatHeader.displayName = 'ChatHeader';
-LoadMoreIndicator.displayName = 'LoadMoreIndicator';
 MessagesContent.displayName = 'MessagesContent';
 
 export default ChatWindow;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.social_network.social_network.controller.MessageRouter;
 import com.social_network.social_network.dto.WebSocketMessageDTO;
+import com.social_network.social_network.respository.UserRepository;
 import com.social_network.social_network.service.WebSocketSessionManager;
 import com.social_network.social_network.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class WebSocketHandler implements org.springframework.web.socket.WebSocke
     private final ObjectMapper objectMapper;
     private final WebSocketSessionManager sessionManager;
     private final MessageRouter messageRouter;
-
+    private final UserRepository userRepository;
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         try {
@@ -76,7 +77,7 @@ public class WebSocketHandler implements org.springframework.web.socket.WebSocke
 
             // Register session
             sessionManager.addSession(userId, tabId, session);
-
+            userRepository.updateStatus(userId, "ON");
             log.info("WebSocket connected: userId={}, tabId={}, sessionId={}",
                     userId, tabId, session.getId());
 
@@ -96,6 +97,7 @@ public class WebSocketHandler implements org.springframework.web.socket.WebSocke
             sessionManager.removeSession(userId, session);
             log.info("WebSocket disconnected: userId={}, tabId={}, status={}",
                     userId, tabId, status.getCode());
+            userRepository.updateStatus(userId,"OFF");
         } else {
             log.warn("WebSocket closed but userId/tabId not found in session");
         }

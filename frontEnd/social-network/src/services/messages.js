@@ -29,7 +29,8 @@ const messagesAPI = {
 
   // Tạo hoặc lấy một cuộc trò chuyện
   getOrCreateChat: async (userId) => {
-    const response = await api.post('/api/chats', { userId });
+    const response = await api.post('/api/chats/getOrCreateChat', { userId });
+    console.log("getOrCreateChat response:", response.data);
     return response.data;
   },
 
@@ -68,7 +69,22 @@ const messagesAPI = {
     if (chatId) params.append('chatId', chatId);
     const response = await api.get(`/api/messages/search?${params.toString()}`);
     return response.data;
+  },
+
+  // Upload media
+  uploadFile: async (file, chatId) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('chatId', chatId);
+    
+    const response = await api.post('/api/upload/file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
   }
+
 };
 
 export default messagesAPI;

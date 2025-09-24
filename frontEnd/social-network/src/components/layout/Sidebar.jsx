@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Calendar
 } from 'lucide-react';
+import { Avatar } from '../ui';
 import { useAuth } from '../../hooks';
 
 const Sidebar = () => {
@@ -54,19 +55,19 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto">
+    <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto hide-scrollbar">
       <div className="p-4 space-y-6">
         {/* User Profile Section */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4">
           <div className="flex items-center space-x-3">
-            <img
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=3b82f6&color=fff`}
-              alt={user?.fullName}
-              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
-            />
+             <Avatar
+                  src={user?.avatar}
+                  alt={user?.username || 'User'}
+                  size="sm"
+                />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 truncate">
-                {user?.fullName || 'Người dùng'}
+                {user?.username || 'Người dùng'}
               </h3>
               <p className="text-sm text-gray-600 truncate">
                 {user?.email || 'user@example.com'}

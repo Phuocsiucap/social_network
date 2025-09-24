@@ -53,40 +53,8 @@ const ChatList = ({
   };
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Messages
-            {totalUnreadCount > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[1.25rem] text-center">
-                {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
-              </span>
-            )}
-          </h2>
-          <button
-            onClick={onRefresh}
-            className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`w-4 h-4 text-gray-600 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-        
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
+    <div className="w-full bg-white border-r border-gray-200 flex flex-col h-full">
+      
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
@@ -114,12 +82,12 @@ const ChatList = ({
                   className={`p-4 cursor-pointer transition-colors ${
                     isSelected 
                       ? 'bg-blue-50 border-r-2 border-blue-500' 
-                      : 'hover:bg-gray-50'
+                      : 'hover:bg-gray-50 active:bg-gray-100'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     {/* Avatar */}
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                       {avatar ? (
                         <img
                           src={avatar}
@@ -153,7 +121,7 @@ const ChatList = ({
                           {displayName}
                         </h3>
                         {chat.latestMessage?.createdAt && (
-                          <span className="text-xs text-gray-500 ml-2">
+                          <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
                             {formatTime(chat.latestMessage.createdAt)}
                           </span>
                         )}
@@ -166,7 +134,7 @@ const ChatList = ({
                           {chat.latestMessage?.content || 'No messages yet'}
                         </p>
                         {unreadCount > 0 && (
-                          <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[1.25rem] text-center ml-2">
+                          <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[1.25rem] text-center ml-2 flex-shrink-0">
                             {unreadCount > 99 ? '99+' : unreadCount}
                           </span>
                         )}

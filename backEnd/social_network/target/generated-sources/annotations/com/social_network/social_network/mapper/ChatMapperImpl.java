@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-13T19:02:26+0700",
+    date = "2025-09-23T18:07:27+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
@@ -72,6 +72,8 @@ public class ChatMapperImpl implements ChatMapper {
         user.gender( userInfoDTO.getGender() );
         user.biography( userInfoDTO.getBiography() );
         user.phone( userInfoDTO.getPhone() );
+        user.location( userInfoDTO.getLocation() );
+        user.lastActive( userInfoDTO.getLastActive() );
 
         return user.build();
     }
@@ -115,8 +117,11 @@ public class ChatMapperImpl implements ChatMapper {
         messages.id( messageDTO.getId() );
         messages.sender( messageUserToUser( messageDTO.getSender() ) );
         messages.content( messageDTO.getContent() );
+        messages.messageType( messageDTO.getMessageType() );
+        messages.fileUrl( messageDTO.getFileUrl() );
         messages.createdAt( messageDTO.getCreatedAt() );
         messages.delivered( messageDTO.getDelivered() );
+        messages.isRead( messageDTO.getIsRead() );
 
         return messages.build();
     }
@@ -137,6 +142,8 @@ public class ChatMapperImpl implements ChatMapper {
         userInfoDTO.gender( user.getGender() );
         userInfoDTO.biography( user.getBiography() );
         userInfoDTO.phone( user.getPhone() );
+        userInfoDTO.location( user.getLocation() );
+        userInfoDTO.lastActive( user.getLastActive() );
 
         return userInfoDTO.build();
     }

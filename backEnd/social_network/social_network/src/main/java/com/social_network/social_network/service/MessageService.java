@@ -1,6 +1,7 @@
 package com.social_network.social_network.service;
 
 
+import com.social_network.social_network.dto.WebSocketDataDTO;
 import com.social_network.social_network.dto.request.MessageRequest;
 import com.social_network.social_network.dto.response.MessageDTO;
 import com.social_network.social_network.entity.Chat;
@@ -40,7 +41,7 @@ public class MessageService {
     private final ChatMapper chatMapper;
 
 
-    public MessageDTO saveMessage(MessageRequest messageSend, String senderId) {
+    public WebSocketDataDTO saveMessage(MessageRequest messageSend, String senderId) {
         Optional<User> useropt = userRepository.findById(senderId);
         Optional<Chat> chatOpt = chatRepository.findById(messageSend.getChatId());
         if (useropt.isEmpty()) {
@@ -60,7 +61,7 @@ public class MessageService {
         Messages savedMessage = messageRepository.save(message);
         chat.setLatestMessage(savedMessage);
         chatRepository.save(chat);
-        MessageDTO messageResponse = messageMapper.toMessageDTO(savedMessage);
+        WebSocketDataDTO messageResponse = messageMapper.toWebSocketDataDTO(savedMessage);
         return messageResponse;
     }
 

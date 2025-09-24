@@ -12,7 +12,7 @@ const QUERY_KEYS = {
 
 const useMessages = () => {
   const queryClient = useQueryClient();
-  const [activeConversation, setActiveConversation] = useState(null);
+  const [activeConversation, setAcConversation] = useState(null);
   const [typingUsers, setTypingUsers] = useState({});
   const typingTimeoutRef = useRef({});
   const isWebSocketConnectedRef = useRef(false);
@@ -66,11 +66,9 @@ const useMessages = () => {
 
   // ✅ 3. Setup WebSocket event listeners - FIXED EVENT NAMES
   useEffect(() => {
-    // Handler for new messages
+   
     const handleNewMessage = (data) => {
       const { message, conversationId } = data;
-      console.log('Received new message via WebSocket:', message);
-
       // Cập nhật messages cache - thêm vào page đầu tiên
       queryClient.setQueryData(QUERY_KEYS.messages(conversationId), (oldData) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
@@ -205,22 +203,7 @@ const useMessages = () => {
       });
     };
 
-    // WebSocket connection handlers
-    const handleWebSocketConnect = () => {
-      console.log('WebSocket connected');
-      isWebSocketConnectedRef.current = true;
-    };
-
-    const handleWebSocketDisconnect = () => {
-      console.log('WebSocket disconnected');
-      isWebSocketConnectedRef.current = false;
-      setTypingUsers({});
-    };
-
-    const handleWebSocketError = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
+    
     // ✅ FIXED: Register event listeners with correct event names
     // These should match the messageType values sent from your server
     WebSocketService.on('NEW_MESSAGE', handleNewMessage);          // Server sends: { messageType: 'NEW_MESSAGE', data: {...} }
@@ -228,46 +211,13 @@ const useMessages = () => {
     WebSocketService.on('USER_TYPING', handleUserTyping);          // Server sends: { messageType: 'USER_TYPING', data: {...} }
     WebSocketService.on('CONVERSATION_UPDATED', handleConversationUpdate); // Server sends: { messageType: 'CONVERSATION_UPDATED', data: {...} }
     
-    // Connection status events
-    WebSocketService.on('connected', handleWebSocketConnect);
-    WebSocketService.on('disconnected', handleWebSocketDisconnect);
-    WebSocketService.on('error', handleWebSocketError);
-
-    // Alternative: If you want to handle all messages with a single listener
-    const handleGenericMessage = (data) => {
-      console.log('Generic WebSocket message:', data);
-      
-      switch(data.messageType) {
-        case 'NEW_MESSAGE':
-          handleNewMessage(data.data);
-          break;
-        case 'MESSAGE_READ':
-          handleMessageRead(data.data);
-          break;
-        case 'USER_TYPING':
-          handleUserTyping(data.data);
-          break;
-        case 'CONVERSATION_UPDATED':
-          handleConversationUpdate(data.data);
-          break;
-        default:
-          console.log('Unhandled message type:', data.messageType);
-      }
-    };
-
-    // You can also listen to the generic 'message' event
-    // WebSocketService.on('message', handleGenericMessage);
-
     // Cleanup function
     return () => {
       WebSocketService.off('NEW_MESSAGE', handleNewMessage);
       WebSocketService.off('MESSAGE_READ', handleMessageRead);
       WebSocketService.off('USER_TYPING', handleUserTyping);
       WebSocketService.off('CONVERSATION_UPDATED', handleConversationUpdate);
-      WebSocketService.off('connected', handleWebSocketConnect);
-      WebSocketService.off('disconnected', handleWebSocketDisconnect);
-      WebSocketService.off('error', handleWebSocketError);
-      
+    
       // Clean up typing timeouts
       Object.values(typingTimeoutRef.current).forEach(timeout => {
         clearTimeout(timeout);
@@ -289,11 +239,6 @@ const useMessages = () => {
     }
   }, [activeConversation]);
 
-  // ✅ Helper functions
-  const setSelectedConversationId = useCallback((conversationId) => {
-    console.log('Setting active conversation:', conversationId);
-    setActiveConversation(conversationId);
-  }, []);
 
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -335,8 +280,7 @@ const useMessages = () => {
       console.log('Sending message via WebSocket:', messageData);
       return await WebSocketService.sendMessage(
         activeConversation, 
-        messageData.content, 
-        messageData.type || 'text'
+        messageData
       );
       
     } catch (error) {
@@ -376,6 +320,15 @@ const useMessages = () => {
     );
   }, [activeConversation, typingUsers]);
 
+
+  const uploadFile = async (data) => {
+    const rq = await messagesAPI.uploadFile(data.file, data.chatId);
+    console.log(rq);
+    return rq.result;
+  }
+  const setSelectedConversationId = (conversationId) => {
+    setAcConversation(conversationId);
+  }
   // Get current messages
   const messages = getMessagesByConversationId();
 
@@ -404,6 +357,7 @@ const useMessages = () => {
     setSelectedConversationId,
     loadMore,
     sendMessage,
+    uploadFile,
     markAsRead,
     sendTyping,
     refetchConversations,

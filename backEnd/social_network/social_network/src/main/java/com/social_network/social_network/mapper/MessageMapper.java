@@ -1,5 +1,6 @@
 package com.social_network.social_network.mapper;
 
+import com.social_network.social_network.dto.WebSocketDataDTO;
 import com.social_network.social_network.dto.request.MessageRequest;
 import com.social_network.social_network.dto.response.MessageDTO;
 import com.social_network.social_network.entity.Messages;
@@ -13,5 +14,6 @@ public interface MessageMapper {
     Messages toMessages(MessageRequest messageSend);
     MessageRequest toMessageRequest(String message);
     MessageDTO toMessageDTO(Messages messages);
+    WebSocketDataDTO toWebSocketDataDTO(Messages messages);
 
 }

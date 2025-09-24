@@ -4,3 +4,5 @@ export { default as RegisterPage } from './RegisterPage';
 export { default as NotFoundPage } from './NotFoundPage';
 export { default as SettingsPage } from './SettingsPage';
 export { default as MessagesPage } from './MessagesPage';
+export { default as FriendPage } from './FriendPage';
+export { default as CallHistoryPage } from './CallHistoryPage';

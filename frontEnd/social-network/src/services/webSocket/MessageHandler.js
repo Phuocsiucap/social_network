@@ -7,24 +7,24 @@ class MessageHandler {
     send(messageType, data = {}) {
         const message = {
             messageType: messageType,  // Backend đọc field này
-            timestamp: new Date().toISOString(),
-            ...data  // Spread data ra ngoài thay vì nest
+            data: data  // Spread data ra ngoài thay vì nest
         };
         return this.connection.send(message);
     }
 
     // Gửi tin nhắn chat
-    sendMessage(conversationId, content, message_Type = 'text') {
+    sendMessage(conversationId, data) {
         return this.send('CHAT', {  // Dùng 'CHAT' để match với ChatMessageHandler
             chatId: conversationId,  // Backend expect 'chatId'
-            content: content,
-            message_Type: message_Type  // Này là loại message (text/image/file)
+            ...data
+            // content: content,
+            // message_Type: message_Type  // Này là loại message (text/image/file)
         });
     }
 
     // Gửi media message
     sendMediaMessage(conversationId, fileUrl, messageType = 'image') {
-        return this.send('MEDIA', {  // Match với ChatMessageHandler
+        return this.send('CHAT', {  // Match với ChatMessageHandler
             chatId: conversationId,
             fileUrl: fileUrl,
             messageType: messageType
@@ -61,42 +61,28 @@ class MessageHandler {
         });
     }
 
-    // Post interactions - Thêm các method cho post
-    likePost(postId) {
-        return this.send('POST_LIKE', {
-            postId: postId
-        });
-    }
-
-    commentPost(postId, content) {
-        return this.send('POST_COMMENT', {
-            postId: postId,
-            content: content
-        });
-    }
-
-    sharePost(postId) {
-        return this.send('POST_SHARE', {
-            postId: postId
-        });
-    }
 
     // Friend requests
     sendFriendRequest(targetUserId) {
         return this.send('FRIEND_REQUEST', {
-            targetUserId: targetUserId
+            targetId: targetUserId
         });
     }
 
     acceptFriendRequest(targetUserId) {
         return this.send('FRIEND_ACCEPT', {
-            targetUserId: targetUserId
+            targetId: targetUserId
         });
     }
 
     rejectFriendRequest(targetUserId) {
         return this.send('FRIEND_REJECT', {
-            targetUserId: targetUserId
+            targetId: targetUserId
+        });
+    }
+    cancelFriendRequest(targetUserId) {
+        return this.send('FRIEND_CANCEL', {
+            targetId: targetUserId
         });
     }
 }

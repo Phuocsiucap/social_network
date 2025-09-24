@@ -8,10 +8,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WebSocketMessageDTO {
     String messageType;
-    String content;
-    String chatId;
-    String fileUrl;
-    String targetUserId;
-    String postId;
+
     Object data;
 }
+

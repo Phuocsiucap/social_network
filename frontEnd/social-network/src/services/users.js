@@ -2,7 +2,7 @@
 // ===== services/users.js =====
 import api from './api'
 
-export const usersAPI = {
+const usersAPI = {
   // Get user profile
   getUser: async (userId) => {
     const response = await api.get(`/users/${userId}`)
@@ -39,31 +39,7 @@ export const usersAPI = {
     return response.data
   },
 
-  // Update user profile
-  updateProfile: async (userData) => {
-    const response = await api.put('/users/profile', userData)
-    return response.data
-  },
-
-  // Upload avatar
-  uploadAvatar: async (file) => {
-    const formData = new FormData()
-    formData.append('avatar', file)
-    
-    const response = await api.post('/users/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    return response.data
-  },
-
-  // Upload cover photo
-  uploadCover: async (file) => {
-    const formData = new FormData()
-    formData.append('cover', file)
-    
-    const response = await api.post('/users/cover', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
-    return response.data
-  }
+  
 }
+
+export default usersAPI;

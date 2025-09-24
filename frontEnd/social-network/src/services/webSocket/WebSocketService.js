@@ -62,6 +62,22 @@ class WebSocketService {
     resetReconnectAttempts() {
         this.reconnectManager.reset();
     }
+
+
+
+    //friend methods
+    sendFriendRequest(targetUserId) {
+        return this.messageHandler.sendFriendRequest(targetUserId);
+    }
+    acceptFriendRequest(targetUserId) {
+        return this.messageHandler.acceptFriendRequest(targetUserId);
+    }
+    rejectFriendRequest(targetUserId) {
+        return this.messageHandler.rejectFriendRequest(targetUserId);
+    }    
+    cancelFriendRequest(targetUserId) {
+        return this.messageHandler.cancelFriendRequest(targetUserId);
+    }
 }
 
 const webSocketService = new WebSocketService();

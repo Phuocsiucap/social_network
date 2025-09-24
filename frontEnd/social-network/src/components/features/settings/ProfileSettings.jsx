@@ -12,7 +12,6 @@ const ProfileSettings = () => {
   const { user, updateProfile, updateAvatar } = useAuth();
   const fileInputRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.username || DEFAULT_USER_VALUES.username,
     email: user?.email || DEFAULT_USER_VALUES.email,
@@ -25,8 +24,11 @@ const ProfileSettings = () => {
     website: user?.website || DEFAULT_USER_VALUES.website,
     occupation: user?.occupation || DEFAULT_USER_VALUES.occupation,
   });
+  
+  // State để quản lý preview avatar và file đã chọn
   const [previewAvatar, setPreviewAvatar] = useState(user?.avatar || DEFAULT_AVATAR);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [hasAvatarChanged, setHasAvatarChanged] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,29 +63,38 @@ const ProfileSettings = () => {
   };
 
   const handleFileChange = (e) => {
+    // console.log('File input changed:', e.target.files);
     const file = e.target.files?.[0];
-    if (!file) return;
+    // console.log('Selected file:', file);
+    // console.log('File type:', file?.type); // Thêm dòng này để xem MIME type
+    if (!file) {
+      // console.warn('No file selected');
+      return;
+    }
 
     const validation = validateFile(file);
     if (!validation.valid) {
+      // console.error('File validation failed:', validation.error);
       toast.error(validation.error);
       return;
     }
 
-    // Create preview
+    // Tạo preview ngay lập tức - KHÔNG gọi API
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewAvatar(reader.result);
-      setSelectedFile(file);
+      // console.log('File preview loaded:', reader.result);
+      setPreviewAvatar(reader.result); // Hiển thị preview
+      setSelectedFile(file); // Lưu file để upload sau
+      setHasAvatarChanged(true); // Đánh dấu avatar đã thay đổi
     };
+    // console.log('Calling reader.readAsDataURL...');
     reader.readAsDataURL(file);
   };
 
-  // Fixed uploadAvatar function
+  // Hàm upload avatar - chỉ gọi khi submit
   const uploadAvatar = async (file) => {
     if (!file) return null;
 
-    setUploadingAvatar(true);
     try {
       // Tạo FormData để gửi file
       const formData = new FormData();
@@ -101,8 +112,6 @@ const ProfileSettings = () => {
     } catch (error) {
       console.error('Avatar upload failed:', error);
       throw error;
-    } finally {
-      setUploadingAvatar(false);
     }
   };
 
@@ -118,17 +127,21 @@ const ProfileSettings = () => {
       setSubmitting(true);
       let updateData = { ...formData };
 
-      // Upload avatar if file is selected
-      if (selectedFile) {
+      // Chỉ upload avatar nếu có file được chọn
+      if (selectedFile && hasAvatarChanged) {
         toast.loading('Đang tải ảnh lên...', { id: 'upload' });
         const avatarUrl = await uploadAvatar(selectedFile);
         updateData.avatar = avatarUrl;
         toast.success('Tải ảnh thành công', { id: 'upload' });
       }
 
-      // Update profile with new data
+      // Update profile với data mới
       await updateProfile(updateData);
-      setSelectedFile(null); // Clear selected file after successful upload
+      
+      // Reset states sau khi thành công
+      setSelectedFile(null);
+      setHasAvatarChanged(false);
+      
       toast.success('Cập nhật thông tin thành công');
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -141,9 +154,24 @@ const ProfileSettings = () => {
   const removeAvatar = () => {
     setPreviewAvatar(DEFAULT_AVATAR);
     setSelectedFile(null);
+    setHasAvatarChanged(true); // Đánh dấu đã thay đổi avatar
     setFormData(prev => ({
       ...prev,
       avatar: DEFAULT_AVATAR
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Reset về avatar gốc
+  const resetAvatar = () => {
+    setPreviewAvatar(user?.avatar || DEFAULT_AVATAR);
+    setSelectedFile(null);
+    setHasAvatarChanged(false);
+    setFormData(prev => ({
+      ...prev,
+      avatar: user?.avatar || DEFAULT_AVATAR
     }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -177,13 +205,9 @@ const ProfileSettings = () => {
                   size="sm"
                   className="p-2 rounded-full shadow-lg"
                   onClick={handleAvatarClick}
-                  disabled={uploadingAvatar}
+                  disabled={submitting}
                 >
-                  {uploadingAvatar ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <Camera className="w-4 h-4" />
-                  )}
+                  <Camera className="w-4 h-4" />
                 </Button>
                 {(previewAvatar !== DEFAULT_AVATAR) && (
                   <Button
@@ -192,6 +216,7 @@ const ProfileSettings = () => {
                     size="sm"
                     className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg"
                     onClick={removeAvatar}
+                    disabled={submitting}
                   >
                     ×
                   </Button>
@@ -215,8 +240,22 @@ const ProfileSettings = () => {
               </p>
               {selectedFile && (
                 <p className="text-sm text-blue-600 mt-1">
-                  📎 {selectedFile.name} ({Math.round(selectedFile.size / 1024)}KB)
+                  📎 {selectedFile.name} ({Math.round(selectedFile.size / 1024)}KB) - Chưa tải lên
                 </p>
+              )}
+              {hasAvatarChanged && (
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={resetAvatar}
+                    disabled={submitting}
+                    className="text-xs"
+                  >
+                    Hoàn tác
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -334,7 +373,7 @@ const ProfileSettings = () => {
               type="submit" 
               variant="primary" 
               size="lg"
-              disabled={submitting || uploadingAvatar}
+              disabled={submitting}
               className="min-w-[160px]"
             >
               {submitting ? (
